@@ -31,7 +31,7 @@ public class Calculator {
             }
 
             String result;
-            if (Pattern.compile("^*[-+]*$").matcher(subExpression).find()) {
+            if (Pattern.compile("^.+[-+].+$").matcher(subExpression).find()) {
                 result = calculate(subExpression);
                 if(result.startsWith("-")){
                     expression = expression.replace("(" + subExpression + ")", result);
