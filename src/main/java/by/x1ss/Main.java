@@ -1,15 +1,25 @@
 package by.x1ss;
 
-import by.x1ss.convetror.CurrencyConvertor;
+import by.x1ss.calculator.Calculator;
+
+import java.io.FileNotFoundException;
 
 public class Main
 {
-    private static final CurrencyConvertor currencyConvertor = new CurrencyConvertor();
     public static void main( String[] args ) {
-        try{
-            currencyConvertor.loadExchangeRates("exchange_rates.csv");
-        } catch (Exception e) {
-            System.out.println("Error while loading exchange rates");
+        Calculator calculator;
+        try {
+            calculator = new Calculator("exchange_rates.csv");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        try {
+            System.out.println(calculator.calculate("toDollars(100р + 200р)"));
+        } catch (NumberFormatException e){
+            System.out.println("Wrong operation : " + e.getMessage());
+        } catch (IllegalArgumentException e){
+            System.out.println(e.getMessage());
         }
 
     }
