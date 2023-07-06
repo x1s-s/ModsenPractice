@@ -1,0 +1,99 @@
+package by.x1ss.calculator;
+
+import by.x1ss.convetror.CurrencyConvertor;
+
+import java.io.FileNotFoundException;
+import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Calculator {
+    private final CurrencyConvertor currencyConvertor = new CurrencyConvertor();
+
+    public Calculator(String filePath) throws FileNotFoundException {
+        currencyConvertor.loadExchangeRates(filePath);
+    }
+
+    public String calculate(String expression) {
+        expression = expression.replaceAll(" ", "");
+
+        while (expression.contains("(")) {
+            int start = expression.lastIndexOf("(");
+            int end = expression.indexOf(")", start);
+            String command = "";
+            String subExpression = expression.substring(start + 1, end);
+
+            for (var money : Money.values()) {
+                if (expression.startsWith(money.convertCommand, start - money.convertCommand.length())) {
+                    command = money.convertCommand;
+                    break;
+                }
+            }
+
+            String result;
+            if (subExpression.contains("+") || subExpression.contains("-")){
+                result = calculate(subExpression);
+                expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
+            } else{
+                result = calculate(command + subExpression);
+                if(!command.equals("")){
+                    expression = expression.substring(0, start - command.length()) + result + expression.substring(end + 1);
+                }
+            }
+
+        }
+
+
+        for (var exchangeTo : Money.values()) {
+            if (expression.startsWith(exchangeTo.convertCommand)) {
+                expression = expression.substring(exchangeTo.convertCommand.length());
+                Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+                if (matcher.find()) {
+                    char symbol = expression.charAt(matcher.start());
+                    expression = expression.replace(String.valueOf(symbol), "");
+                    for (var base : Money.values()) {
+                        if (symbol == base.symbol) {
+
+                            if (exchangeTo.startBySymbol) {
+                                return exchangeTo.symbol + currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
+                            } else {
+                                return currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString() + exchangeTo.symbol;
+                            }
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Can't find currency symbol: " + expression);
+                }
+            }
+        }
+
+
+        Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+        if (matcher.find()) {
+            int currencySymbolIndex = matcher.start();
+            boolean startBySymbol = currencySymbolIndex == 0;
+            char symbol = expression.charAt(currencySymbolIndex);
+            if (expression.contains("+")) {
+                expression = expression.replace(String.valueOf(symbol), "");
+                BigDecimal first = new BigDecimal(expression.substring(0, expression.indexOf("+")));
+                BigDecimal second = new BigDecimal(expression.substring(expression.indexOf("+") + 1));
+                if (startBySymbol) {
+                    return symbol + first.add(second).toString();
+                } else {
+                    return first.add(second).toString() + symbol;
+                }
+            } else if (expression.contains("-")) {
+                expression = expression.replace(String.valueOf(symbol), "");
+                BigDecimal first = new BigDecimal(expression.substring(0, expression.indexOf("-")));
+                BigDecimal second = new BigDecimal(expression.substring(expression.indexOf("-") + 1));
+                if (startBySymbol) {
+                    return symbol + first.subtract(second).toString();
+                } else {
+                    return first.subtract(second).toString() + symbol;
+                }
+            }
+        }
+        return expression;
+
+    }
+}
