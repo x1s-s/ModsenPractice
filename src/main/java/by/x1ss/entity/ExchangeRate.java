@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class ExchangeRate {
+    private final String baseCurrency;
     private final String exchangeCurrency;
-    private final String exchangeableCurrency;
     private final BigDecimal rate;
 }
