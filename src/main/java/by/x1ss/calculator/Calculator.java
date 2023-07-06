@@ -31,12 +31,16 @@ public class Calculator {
             }
 
             String result;
-            if (subExpression.contains("+") || subExpression.contains("-")){
+            if (Pattern.compile("^*[-+]*$").matcher(subExpression).find()) {
                 result = calculate(subExpression);
-                expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
-            } else{
+                if(result.startsWith("-")){
+                    expression = expression.replace("(" + subExpression + ")", result);
+                } else {
+                    expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
+                }
+            } else {
                 result = calculate(command + subExpression);
-                if(!command.equals("")){
+                if (!command.equals("")) {
                     expression = expression.substring(0, start - command.length()) + result + expression.substring(end + 1);
                 }
             }
@@ -68,8 +72,37 @@ public class Calculator {
         }
 
 
+        while (true) {
+            Matcher matcher = Pattern.compile("[-+]").matcher(expression);
+            if (!matcher.find(1)) {
+                break;
+            }
+            int firstOperation = matcher.start();
+            String subExpression = expression.substring(0, firstOperation);
+            if (matcher.find(firstOperation + 1)){
+                int secondOperation = matcher.start();
+                if(secondOperation - 1 == firstOperation){
+                    if(expression.charAt(secondOperation) == '-' && expression.charAt(secondOperation + 1) == '-'){
+                        expression = expression.replaceFirst("--", "+");
+                    } else {
+                        expression = expression.replaceFirst("\\+-", "-");
+                    }
+                    continue;
+                }
+                subExpression += expression.charAt(firstOperation) + expression.substring(firstOperation + 1, secondOperation);
+                expression = expression.replace(subExpression, calculateTwo(subExpression));
+            } else {
+                expression = calculateTwo(expression);
+            }
+        }
+
+        return expression;
+
+    }
+
+    public String calculateTwo(String expression) {
         Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
-        if (matcher.find()) {
+        if (matcher.find(1)) {
             int currencySymbolIndex = matcher.start();
             boolean startBySymbol = currencySymbolIndex == 0;
             char symbol = expression.charAt(currencySymbolIndex);
@@ -84,8 +117,9 @@ public class Calculator {
                 }
             } else if (expression.contains("-")) {
                 expression = expression.replace(String.valueOf(symbol), "");
-                BigDecimal first = new BigDecimal(expression.substring(0, expression.indexOf("-")));
-                BigDecimal second = new BigDecimal(expression.substring(expression.indexOf("-") + 1));
+                int indexOfOperation = expression.substring(1).indexOf("-") + 1;
+                BigDecimal first = new BigDecimal(expression.substring(0, indexOfOperation));
+                BigDecimal second = new BigDecimal(expression.substring(indexOfOperation + 1));
                 if (startBySymbol) {
                     return symbol + first.subtract(second).toString();
                 } else {
@@ -93,7 +127,6 @@ public class Calculator {
                 }
             }
         }
-        return expression;
-
+        return null;
     }
 }
