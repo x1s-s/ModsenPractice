@@ -4,6 +4,7 @@ import by.x1ss.convetror.CurrencyConvertor;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.net.UnknownServiceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +15,7 @@ public class Calculator {
         currencyConvertor.loadExchangeRates(filePath);
     }
 
-    public String calculate(String expression) {
+    public String calculate(String expression) throws UnknownServiceException{
         expression = expression.replaceAll(" ", "");
 
         while (expression.contains("(")) {
@@ -33,7 +34,7 @@ public class Calculator {
             String result;
             if (Pattern.compile("^.+[-+].+$").matcher(subExpression).find()) {
                 result = calculate(subExpression);
-                if(result.startsWith("-")){
+                if (result.startsWith("-")) {
                     expression = expression.replace("(" + subExpression + ")", result);
                 } else {
                     expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
@@ -57,7 +58,6 @@ public class Calculator {
                     expression = expression.replace(String.valueOf(symbol), "");
                     for (var base : Money.values()) {
                         if (symbol == base.symbol) {
-
                             if (exchangeTo.startBySymbol) {
                                 return exchangeTo.symbol + currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
                             } else {
@@ -79,10 +79,10 @@ public class Calculator {
             }
             int firstOperation = matcher.start();
             String subExpression = expression.substring(0, firstOperation);
-            if (matcher.find(firstOperation + 1)){
+            if (matcher.find(firstOperation + 1)) {
                 int secondOperation = matcher.start();
-                if(secondOperation - 1 == firstOperation){
-                    if(expression.charAt(secondOperation) == '-' && expression.charAt(secondOperation + 1) == '-'){
+                if (secondOperation - 1 == firstOperation) {
+                    if (expression.charAt(secondOperation) == '-' && expression.charAt(secondOperation + 1) == '-') {
                         expression = expression.replaceFirst("--", "+");
                     } else {
                         expression = expression.replaceFirst("\\+-", "-");
@@ -95,12 +95,10 @@ public class Calculator {
                 expression = calculateTwo(expression);
             }
         }
-
         return expression;
-
     }
 
-    public String calculateTwo(String expression) {
+    public String calculateTwo(String expression) throws UnknownServiceException{
         Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
         if (matcher.find(1)) {
             int currencySymbolIndex = matcher.start();
@@ -127,6 +125,6 @@ public class Calculator {
                 }
             }
         }
-        return null;
+        throw new UnknownServiceException();
     }
 }
