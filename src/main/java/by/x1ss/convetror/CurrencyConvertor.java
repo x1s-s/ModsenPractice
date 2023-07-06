@@ -27,14 +27,14 @@ public class CurrencyConvertor {
         scanner.close();
     }
 
-    public BigDecimal convert(String exchangeCurrency, String exchangeableCurrency, BigDecimal amount) {
-        BigDecimal exchangeRate = getExchangeRate(exchangeCurrency, exchangeableCurrency);
+    public BigDecimal convert(String baseCurrency, String exchangeCurrency, BigDecimal amount) {
+        BigDecimal exchangeRate = getExchangeRate(baseCurrency, exchangeCurrency);
         return amount.multiply(exchangeRate);
     }
 
-    public BigDecimal getExchangeRate(String exchangeCurrency, String exchangeableCurrency) {
+    public BigDecimal getExchangeRate(String baseCurrency, String exchangeCurrency) {
         for (ExchangeRate exchangeRate : exchangeRates) {
-            if (exchangeRate.getExchangeCurrency().equals(exchangeCurrency) && exchangeRate.getExchangeableCurrency().equals(exchangeableCurrency)) {
+            if (exchangeRate.getBaseCurrency().equals(baseCurrency) && exchangeRate.getExchangeCurrency().equals(exchangeCurrency)) {
                 return exchangeRate.getRate();
             }
         }
