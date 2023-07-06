@@ -6,9 +6,8 @@ import by.x1ss.calculator.Money;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class Main
-{
-    public static void main( String[] args ) {
+public class Main {
+    public static void main(String[] args) {
         Calculator calculator;
         try {
             calculator = new Calculator("exchange_rates.csv");
@@ -18,15 +17,15 @@ public class Main
 
 
         Scanner scanner = new Scanner(System.in);
-        while (true){
+        while (true) {
             System.out.println("Enter expression (enter exit to close application):");
             String expression = scanner.nextLine();
-            if(expression.equals("exit")){
+            if (expression.equals("exit")) {
                 break;
             }
             try {
                 System.out.println(calculator.calculate(expression));
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 boolean checker = true;
                 for (var money : Money.values()) {
                     if (e.getMessage().contains(String.valueOf(money.symbol))) {
@@ -34,14 +33,12 @@ public class Main
                         checker = false;
                     }
                 }
-                if(checker){
+                if (checker) {
                     System.out.println("Wrong operation: " + e.getMessage().charAt(10));
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
-
-
     }
 }
