@@ -1,6 +1,7 @@
 package by.x1ss;
 
 import by.x1ss.calculator.Calculator;
+import by.x1ss.calculator.Money;
 
 import java.io.FileNotFoundException;
 
@@ -15,10 +16,19 @@ public class Main
         }
 
         try {
-            System.out.println(calculator.calculate("toDollars(100р + 200р)"));
+            System.out.println(calculator.calculate("toDollars(-100р + (100р - 200р + 50р) + 1р)"));
         } catch (NumberFormatException e){
-            System.out.println("Wrong operation : " + e.getMessage());
-        } catch (IllegalArgumentException e){
+            boolean checker = true;
+            for (var money : Money.values()) {
+                if (e.getMessage().contains(String.valueOf(money.symbol))) {
+                    System.out.println("Wrong operation " + money.name() + " value. Error of converting currency: different currencies in one addition or subtraction operation. ");
+                    checker = false;
+                }
+            }
+            if(checker){
+                System.out.println("Wrong operation: " + e.getMessage().charAt(10));
+            }
+        } catch (Exception e){
             System.out.println(e.getMessage());
         }
 
