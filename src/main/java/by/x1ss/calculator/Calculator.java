@@ -48,7 +48,6 @@ public class Calculator {
 
         }
 
-        boolean checker = false;
         for (var exchangeTo : Money.values()) {
             if (expression.startsWith(exchangeTo.convertCommand)) {
                 expression = expression.substring(exchangeTo.convertCommand.length());
@@ -56,6 +55,7 @@ public class Calculator {
                 if (matcher.find()) {
                     char symbol = expression.charAt(matcher.start());
                     expression = expression.replace(String.valueOf(symbol), "");
+                    boolean checker = false;
                     for (var base : Money.values()) {
                         if (symbol == base.symbol) {
                             checker = true;
