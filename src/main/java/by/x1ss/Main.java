@@ -18,7 +18,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Enter expression (enter exit to close application):");
+            System.out.println("Enter expression (enter exit to close application, example toDollars(737р + toRubles($85.4))):");
             String expression = scanner.nextLine();
             if (expression.equals("exit")) {
                 break;
