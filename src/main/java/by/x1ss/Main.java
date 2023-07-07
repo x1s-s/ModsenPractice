@@ -36,6 +36,8 @@ public class Main {
                 if (checker) {
                     System.out.println("Wrong operation: " + e.getMessage().charAt(10));
                 }
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Incorrect placement of brackets ()");
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
