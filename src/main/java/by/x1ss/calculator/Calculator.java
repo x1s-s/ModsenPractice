@@ -51,7 +51,7 @@ public class Calculator {
         for (var exchangeTo : Money.values()) {
             if (expression.startsWith(exchangeTo.convertCommand)) {
                 expression = expression.substring(exchangeTo.convertCommand.length());
-                Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+                Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
                 if (matcher.find()) {
                     char symbol = expression.charAt(matcher.start());
                     expression = expression.replace(String.valueOf(symbol), "");
@@ -108,7 +108,7 @@ public class Calculator {
     }
 
     public String calculateTwo(String expression) throws UnknownServiceException{
-        Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+        Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
         if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
             boolean startBySymbol = currencySymbolIndex == 0;
