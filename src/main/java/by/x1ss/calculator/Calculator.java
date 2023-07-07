@@ -17,7 +17,7 @@ public class Calculator {
 
     public String calculate(String expression) throws UnknownServiceException{
         expression = expression.replaceAll(" ", "");
-
+        String startExpression = expression;
         while (expression.contains("(")) {
             int start = expression.lastIndexOf("(");
             int end = expression.indexOf(")", start);
@@ -48,7 +48,7 @@ public class Calculator {
 
         }
 
-
+        boolean checker = false;
         for (var exchangeTo : Money.values()) {
             if (expression.startsWith(exchangeTo.convertCommand)) {
                 expression = expression.substring(exchangeTo.convertCommand.length());
@@ -58,12 +58,16 @@ public class Calculator {
                     expression = expression.replace(String.valueOf(symbol), "");
                     for (var base : Money.values()) {
                         if (symbol == base.symbol) {
+                            checker = true;
                             if (exchangeTo.startBySymbol) {
                                 return exchangeTo.symbol + currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
                             } else {
                                 return currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString() + exchangeTo.symbol;
                             }
                         }
+                    }
+                    if (!checker) {
+                        throw new IllegalArgumentException("Can't find currency symbol: " + symbol);
                     }
                 } else {
                     throw new IllegalArgumentException("Can't find currency symbol: " + expression);
@@ -95,12 +99,17 @@ public class Calculator {
                 expression = calculateTwo(expression);
             }
         }
+
+        if(startExpression.equals(expression)){
+            throw new IllegalArgumentException("Can't find operation");
+        }
+
         return expression;
     }
 
     public String calculateTwo(String expression) throws UnknownServiceException{
         Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
-        if (matcher.find(1)) {
+        if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
             boolean startBySymbol = currencySymbolIndex == 0;
             char symbol = expression.charAt(currencySymbolIndex);
@@ -123,6 +132,8 @@ public class Calculator {
                 } else {
                     return first.subtract(second).toString() + symbol;
                 }
+            } else {
+                throw new IllegalArgumentException("Can't find operation");
             }
         }
         throw new UnknownServiceException();
