@@ -1,19 +1,16 @@
-package by.x1ss.calculator;
+package by.x1ss.ModsenPractice.calculator;
 
-import by.x1ss.convetror.CurrencyConvertor;
+import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
+import lombok.RequiredArgsConstructor;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.net.UnknownServiceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 public class Calculator {
-    private final CurrencyConvertor currencyConvertor = new CurrencyConvertor();
-
-    public Calculator(String filePath) throws FileNotFoundException {
-        currencyConvertor.loadExchangeRates(filePath);
-    }
+    private final CurrencyConvertorService currencyConvertorService;
 
     public String calculate(String expression) throws UnknownServiceException{
         expression = expression.replaceAll(" ", "");
@@ -60,9 +57,9 @@ public class Calculator {
                         if (symbol == base.symbol) {
                             checker = true;
                             if (exchangeTo.startBySymbol) {
-                                return exchangeTo.symbol + currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
+                                return exchangeTo.symbol + currencyConvertorService.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
                             } else {
-                                return currencyConvertor.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString() + exchangeTo.symbol;
+                                return currencyConvertorService.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString() + exchangeTo.symbol;
                             }
                         }
                     }
