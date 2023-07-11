@@ -2,12 +2,14 @@ package by.x1ss.ModsenPractice.calculator;
 
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.net.UnknownServiceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 @RequiredArgsConstructor
 public class Calculator {
     private final CurrencyConvertorService currencyConvertorService;
