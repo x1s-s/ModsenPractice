@@ -1,5 +1,7 @@
 package by.x1ss.ModsenPractice.calculator;
 
+import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
+import by.x1ss.ModsenPractice.exception.IllegalOperation;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,7 @@ import java.util.regex.Pattern;
 public class Calculator {
     private final CurrencyConvertorService currencyConvertorService;
 
-    public String calculate(String expression) throws UnknownServiceException{
+    public String calculate(String expression){
         expression = expression.replaceAll(" ", "");
         String startExpression = expression;
         while (expression.contains("(")) {
@@ -66,10 +68,10 @@ public class Calculator {
                         }
                     }
                     if (!checker) {
-                        throw new IllegalArgumentException("Can't find currency symbol: " + symbol);
+                        throw new CurrencySymbolNotFound(expression);
                     }
                 } else {
-                    throw new IllegalArgumentException("Can't find currency symbol: " + expression);
+                    throw new CurrencySymbolNotFound(expression);
                 }
             }
         }
@@ -100,13 +102,13 @@ public class Calculator {
         }
 
         if(startExpression.equals(expression)){
-            throw new IllegalArgumentException("Can't find operation");
+            throw new IllegalOperation();
         }
 
         return expression;
     }
 
-    public String calculateTwo(String expression) throws UnknownServiceException{
+    public String calculateTwo(String expression){
         Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
         if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
@@ -132,9 +134,9 @@ public class Calculator {
                     return first.subtract(second).toString() + symbol;
                 }
             } else {
-                throw new IllegalArgumentException("Can't find operation");
+                throw new IllegalOperation();
             }
         }
-        throw new UnknownServiceException();
+        return null;
     }
 }
