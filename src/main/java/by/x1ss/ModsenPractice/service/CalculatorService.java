@@ -12,11 +12,6 @@ public class CalculatorService {
     private final Calculator calculator;
 
     public String calculate(String expression) {
-        try{
-            return calculator.calculate(expression);
-        } catch (Exception e){
-            log.warn(e.getMessage());
-            return null;
-        }
+        return calculator.calculate(expression);
     }
 }
