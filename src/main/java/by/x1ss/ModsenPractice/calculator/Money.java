@@ -1,19 +1,17 @@
 package by.x1ss.ModsenPractice.calculator;
 
 public enum Money {
-    USD(true, '$', "toDollars", 431),
-    RUB(false, 'р', "toRubles", 456),
-    EUR(true, '€', "toEuros", 451);
+    USD(true, '$', "toDollars"),
+    BYN(false, 'р', "toRubles"),
+    EUR(true, '€', "toEuros");
 
     public final boolean startBySymbol;
     public final char symbol;
     public final String convertCommand;
-    public final int id;
 
-    Money(boolean startBySymbol, char symbol, String convertCommand, int id) {
+    Money(boolean startBySymbol, char symbol, String convertCommand) {
         this.startBySymbol = startBySymbol;
         this.symbol = symbol;
         this.convertCommand = convertCommand;
-        this.id = id;
     }
 }
