@@ -1,22 +1,22 @@
-package by.x1ss.ModsenPractice.calculator;
+package by.x1ss.ModsenPractice.service.impl;
 
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.IllegalOperation;
-import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
+import by.x1ss.ModsenPractice.service.CalculatorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class Calculator {
-    private final CurrencyConvertorService currencyConvertorService;
+public class CalculatorServiceImpl implements CalculatorService {
+    private final CurrencyConvertorServiceImpl currencyConvertorService;
 
-    public String calculate(String expression){
-        expression = expression.replaceAll(" ", "");
+    public String calculate(String expression) {
         String startExpression = expression;
         while (expression.contains("(")) {
             int start = expression.lastIndexOf("(");
@@ -45,13 +45,12 @@ public class Calculator {
                     expression = expression.substring(0, start - command.length()) + result + expression.substring(end + 1);
                 }
             }
-
         }
 
         for (var exchangeTo : Money.values()) {
             if (expression.startsWith(exchangeTo.convertCommand)) {
                 expression = expression.substring(exchangeTo.convertCommand.length());
-                Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+                Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
                 if (matcher.find()) {
                     char symbol = expression.charAt(matcher.start());
                     expression = expression.replace(String.valueOf(symbol), "");
@@ -77,7 +76,7 @@ public class Calculator {
 
 
         while (true) {
-            Matcher matcher = Pattern.compile("[-+]").matcher(expression);
+            Matcher matcher = Pattern.compile("[-+]").matcher(Objects.requireNonNull(expression));
             if (!matcher.find(1)) {
                 break;
             }
@@ -94,20 +93,20 @@ public class Calculator {
                     continue;
                 }
                 subExpression += expression.charAt(firstOperation) + expression.substring(firstOperation + 1, secondOperation);
-                expression = expression.replace(subExpression, calculateTwo(subExpression));
+                expression = expression.replace(subExpression, Objects.requireNonNull(calculateTwo(subExpression)));
             } else {
                 expression = calculateTwo(expression);
             }
         }
 
-        if(startExpression.equals(expression)){
+        if (startExpression.equals(expression)) {
             throw new IllegalOperation();
         }
 
         return expression;
     }
 
-    public String calculateTwo(String expression){
+    private String calculateTwo(String expression) {
         Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
         if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
