@@ -1,0 +1,6 @@
+bank:
+  api:
+    url: https://belarusbank.by/api/kursExchange?city=Гомель
+logging:
+  level:
+    by.x1ss.ModsenPractice.bannkclient: DEBUG
