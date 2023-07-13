@@ -26,7 +26,7 @@ public class BelarusBankParser implements Parser {
         List<ExchangeRateDto> exchangeRateDtos = new ArrayList<>();
         input = input.substring(input.indexOf("{"), input.lastIndexOf("}") + 1);
         log.info("Parsing input: {}", input);
-        JsonNode jsonNode = null;
+        JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(input);
         } catch (JsonProcessingException e) {
