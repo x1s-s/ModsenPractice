@@ -1,8 +1,21 @@
 package by.x1ss.ModsenPractice.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
 public class IllegalOperation extends RuntimeException {
+    private char operation = 0;
+
     @Override
     public String getMessage() {
-        return "Can't find operation or operation is incorrect";
+        if (operation == '(' || operation == ')') {
+            return "Brackets are incorrect";
+        } else if (operation != 0) {
+            return "Operation is incorrect : " + operation;
+        } else {
+            return "Can't find operation";
+        }
     }
 }
