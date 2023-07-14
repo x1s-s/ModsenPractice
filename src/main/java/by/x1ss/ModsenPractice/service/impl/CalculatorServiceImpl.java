@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +17,11 @@ import java.util.regex.Pattern;
 public class CalculatorServiceImpl implements CalculatorService {
     private final CurrencyConvertorServiceImpl currencyConvertorService;
 
-    public String calculate(String expression) {
+    public String calculate(String expression){
+        return round(calculateExpression(expression.replace(" ", "")));
+    }
+
+    public String calculateExpression(String expression) {
         String startExpression = expression;
         while (expression.contains("(")) {
             int start = expression.lastIndexOf("(");
@@ -32,10 +37,10 @@ public class CalculatorServiceImpl implements CalculatorService {
             }
 
             String result;
-            if (Pattern.compile("^.+[-+].+$").matcher(subExpression).find()) {
+            if (Pattern.compile(".+[-+].+").matcher(subExpression).find(2)) {
                 result = calculate(subExpression);
                 if (result.startsWith("-")) {
-                    expression = expression.replace("(" + subExpression + ")", result);
+                    expression = expression.replace(subExpression, result);
                 } else {
                     expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
                 }
@@ -77,7 +82,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 
         while (true) {
             Matcher matcher = Pattern.compile("[-+]").matcher(Objects.requireNonNull(expression));
-            if (!matcher.find(1)) {
+            if (!matcher.find(2)) {
                 break;
             }
             int firstOperation = matcher.start();
@@ -106,8 +111,8 @@ public class CalculatorServiceImpl implements CalculatorService {
         return expression;
     }
 
-    private String calculateTwo(String expression) {
-        Matcher matcher = Pattern.compile("[^-+\\d]").matcher(expression);
+    public String calculateTwo(String expression) {
+        Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
         if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
             boolean startBySymbol = currencySymbolIndex == 0;
@@ -136,5 +141,23 @@ public class CalculatorServiceImpl implements CalculatorService {
             }
         }
         return null;
+    }
+
+    private String round(String expression) {
+        Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
+        if (matcher.find()) {
+            int currencySymbolIndex = matcher.start();
+            boolean startBySymbol = currencySymbolIndex == 0;
+            char symbol = expression.charAt(currencySymbolIndex);
+            expression = expression.replace(String.valueOf(symbol), "");
+            String value = new BigDecimal(expression).setScale(2, RoundingMode.HALF_UP).toString();
+            if (startBySymbol) {
+                return symbol + value;
+            } else {
+                return value + symbol;
+            }
+        } else {
+            throw new CurrencySymbolNotFound(expression);
+        }
     }
 }
