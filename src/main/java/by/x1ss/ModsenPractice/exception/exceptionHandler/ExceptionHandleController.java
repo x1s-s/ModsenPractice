@@ -16,25 +16,25 @@ public class ExceptionHandleController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ExchangeRateNotFound.class)
     public ResponseEntity<String> handleExchangeRateNotFound(ExchangeRateNotFound e){
-        log.error(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(CurrencySymbolNotFound.class)
     public ResponseEntity<String> handleExchangeRateNotFound(CurrencySymbolNotFound e){
-        log.error(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(IllegalOperation.class)
     public ResponseEntity<String> handleExchangeRateNotFound(IllegalOperation e){
-        log.error(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
     @ExceptionHandler(ResponseParseException.class)
     public ResponseEntity<String> handleResponseParseException(ResponseParseException e){
-        log.error(e.getMessage());
+        log.warn(e.getMessage());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
