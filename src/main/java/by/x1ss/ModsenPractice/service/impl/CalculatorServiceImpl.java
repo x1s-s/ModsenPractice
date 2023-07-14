@@ -7,21 +7,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static by.x1ss.ModsenPractice.service.utils.Utils.parseToBigDecimal;
+import static by.x1ss.ModsenPractice.service.utils.Utils.roundCurrency;
 
 @Service
 @RequiredArgsConstructor
 public class CalculatorServiceImpl implements CalculatorService {
     private final CurrencyConvertorServiceImpl currencyConvertorService;
 
-    public String calculate(String expression){
-        return round(calculateExpression(expression.replace(" ", "")));
+    public String calculate(String expression) {
+        return roundCurrency(calculateExpression(expression.replace(" ", "")));
     }
 
-    public String calculateExpression(String expression) {
+    private String calculateExpression(String expression) {
         String startExpression = expression;
         while (expression.contains("(")) {
             int start = expression.lastIndexOf("(");
@@ -64,9 +66,9 @@ public class CalculatorServiceImpl implements CalculatorService {
                         if (symbol == base.symbol) {
                             checker = true;
                             if (exchangeTo.startBySymbol) {
-                                return exchangeTo.symbol + currencyConvertorService.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString();
+                                return exchangeTo.symbol + currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString();
                             } else {
-                                return currencyConvertorService.convert(base.name(), exchangeTo.name(), new BigDecimal(expression)).toString() + exchangeTo.symbol;
+                                return currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString() + exchangeTo.symbol;
                             }
                         }
                     }
@@ -111,7 +113,7 @@ public class CalculatorServiceImpl implements CalculatorService {
         return expression;
     }
 
-    public String calculateTwo(String expression) {
+    private String calculateTwo(String expression) {
         Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
         if (matcher.find()) {
             int currencySymbolIndex = matcher.start();
@@ -119,8 +121,9 @@ public class CalculatorServiceImpl implements CalculatorService {
             char symbol = expression.charAt(currencySymbolIndex);
             if (expression.contains("+")) {
                 expression = expression.replace(String.valueOf(symbol), "");
-                BigDecimal first = new BigDecimal(expression.substring(0, expression.indexOf("+")));
-                BigDecimal second = new BigDecimal(expression.substring(expression.indexOf("+") + 1));
+                int indexOfOperation = expression.substring(1).indexOf("+") + 1;
+                BigDecimal first = parseToBigDecimal(expression.substring(0, indexOfOperation));
+                BigDecimal second = parseToBigDecimal(expression.substring(0, indexOfOperation));
                 if (startBySymbol) {
                     return symbol + first.add(second).toString();
                 } else {
@@ -129,8 +132,8 @@ public class CalculatorServiceImpl implements CalculatorService {
             } else if (expression.contains("-")) {
                 expression = expression.replace(String.valueOf(symbol), "");
                 int indexOfOperation = expression.substring(1).indexOf("-") + 1;
-                BigDecimal first = new BigDecimal(expression.substring(0, indexOfOperation));
-                BigDecimal second = new BigDecimal(expression.substring(indexOfOperation + 1));
+                BigDecimal first = parseToBigDecimal(expression.substring(0, indexOfOperation));
+                BigDecimal second = parseToBigDecimal(expression.substring(indexOfOperation + 1));
                 if (startBySymbol) {
                     return symbol + first.subtract(second).toString();
                 } else {
@@ -141,23 +144,5 @@ public class CalculatorServiceImpl implements CalculatorService {
             }
         }
         return null;
-    }
-
-    private String round(String expression) {
-        Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
-        if (matcher.find()) {
-            int currencySymbolIndex = matcher.start();
-            boolean startBySymbol = currencySymbolIndex == 0;
-            char symbol = expression.charAt(currencySymbolIndex);
-            expression = expression.replace(String.valueOf(symbol), "");
-            String value = new BigDecimal(expression).setScale(2, RoundingMode.HALF_UP).toString();
-            if (startBySymbol) {
-                return symbol + value;
-            } else {
-                return value + symbol;
-            }
-        } else {
-            throw new CurrencySymbolNotFound(expression);
-        }
     }
 }
