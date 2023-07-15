@@ -4,3 +4,6 @@ bank:
 logging:
   level:
     by.x1ss.ModsenPractice.bannkclient: DEBUG
+cache:
+  reload:
+    cron: 0 0 0 * * *
