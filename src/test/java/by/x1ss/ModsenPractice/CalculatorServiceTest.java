@@ -66,6 +66,7 @@ public class CalculatorServiceTest extends AbstractTest{
         assertEquals("$2.00", calculatorService.calculate("toDollars(1р + 1р) + $1"));
         assertEquals("€10.00", calculatorService.calculate("toEuros(toDollars(1р + 1р) + $1)"));
         assertEquals("€11.00", calculatorService.calculate("toEuros(toDollars(1р + 1р) + $1) + €1"));
+        assertEquals("$453.90", calculatorService.calculate("toDollars(737р + toRubles($85.4))"));
         assertEquals("-9900199.00р", calculatorService.calculate("toRubles(toDollars(toRubles(toEuros(100000р + 100р - 200р - 9999999р)) + 100р - 200р))"));
     }
 }
