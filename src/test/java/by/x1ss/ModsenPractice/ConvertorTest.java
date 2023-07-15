@@ -1,22 +1,14 @@
 package by.x1ss.ModsenPractice;
 
-import by.x1ss.ModsenPractice.bannkclient.BankClient;
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
 import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
-import by.x1ss.ModsenPractice.service.impl.ExchangeRateGetServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.List;

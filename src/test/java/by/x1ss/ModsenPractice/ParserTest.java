@@ -1,17 +1,16 @@
 package by.x1ss.ModsenPractice;
 
-import by.x1ss.ModsenPractice.bannkclient.BankClient;
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
 import by.x1ss.ModsenPractice.exception.ResponseParseException;
 import by.x1ss.ModsenPractice.parser.Parser;
-import by.x1ss.ModsenPractice.service.utils.Money;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParserTest extends AbstractTest {
     @Autowired
