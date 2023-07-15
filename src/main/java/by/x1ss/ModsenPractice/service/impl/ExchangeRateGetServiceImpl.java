@@ -16,6 +16,7 @@ public class ExchangeRateGetServiceImpl implements ExchangeRateGetService {
     private final BankClient bankClient;
     private final Parser parser;
 
+    @Override
     @Cacheable("exchangeRates")
     public List<ExchangeRateDto> getExchangeRates() {
         return parser.parse(bankClient.getExchangeRate());
