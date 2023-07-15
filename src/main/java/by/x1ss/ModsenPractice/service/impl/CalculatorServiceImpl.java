@@ -62,19 +62,14 @@ public class CalculatorServiceImpl implements CalculatorService {
                 if (matcher.find()) {
                     char symbol = expression.charAt(matcher.start());
                     expression = expression.replace(String.valueOf(symbol), "");
-                    boolean checker = false;
                     for (var base : Money.values()) {
                         if (symbol == base.symbol) {
-                            checker = true;
                             if (exchangeTo.startBySymbol) {
                                 return exchangeTo.symbol + currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString();
                             } else {
                                 return currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString() + exchangeTo.symbol;
                             }
                         }
-                    }
-                    if (!checker) {
-                        throw new CurrencySymbolNotFound(expression);
                     }
                 } else {
                     throw new CurrencySymbolNotFound(expression);
