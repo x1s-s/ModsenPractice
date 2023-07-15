@@ -1,4 +1,4 @@
-package by.x1ss.ModsenPractice.service.impl;
+package by.x1ss.ModsenPractice.service.utils;
 
 public enum Money {
     USD(true, '$', "toDollars"),
