@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
+@Profile("!test")
 @Slf4j
 @RequiredArgsConstructor
 public class ExchangeRateCacheManager {
@@ -21,7 +23,7 @@ public class ExchangeRateCacheManager {
 
     @CacheEvict(value = "exchangeRates", allEntries = true)
     public void clearCache() {
-        if(cacheManager.getCacheNames().isEmpty()){
+        if (cacheManager.getCacheNames().isEmpty()) {
             log.info("Cache cleared");
         } else {
             log.warn("Cache not cleared");
@@ -35,7 +37,7 @@ public class ExchangeRateCacheManager {
                 cacheManager.getCache("exchangeRates")).getNativeCache());
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${cache.reload.cron}")
     public void reloadCache() {
         clearCache();
         startLoadCache();
