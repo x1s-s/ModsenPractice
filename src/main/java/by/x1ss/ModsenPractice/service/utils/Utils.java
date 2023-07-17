@@ -34,4 +34,17 @@ public class Utils {
             throw new IllegalOperation(e.getMessage().charAt(10));
         }
     }
+
+    public static boolean validateBrackets(String expression) {
+        int openBrackets = 0;
+        int closeBrackets = 0;
+        for (int i = 0; i < expression.length(); i++) {
+            if (expression.charAt(i) == '(') {
+                openBrackets++;
+            } else if (expression.charAt(i) == ')') {
+                closeBrackets++;
+            }
+        }
+        return openBrackets == closeBrackets;
+    }
 }
