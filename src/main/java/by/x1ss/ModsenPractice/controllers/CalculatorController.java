@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class CalculatorController {
     private final CalculatorService calculatorService;
 
-    @GetMapping("/calculate")
+    @PostMapping("/calculate")
     @ResponseStatus(HttpStatus.OK)
     public String calculate(@RequestBody String expression) {
         log.info("Calculate expression: {}", expression);
