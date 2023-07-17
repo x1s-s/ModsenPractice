@@ -1,9 +1,10 @@
 package by.x1ss.ModsenPractice.service.impl;
 
+import by.x1ss.ModsenPractice.dto.Money;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.IllegalOperation;
+import by.x1ss.ModsenPractice.exception.IncorrectNumberOfBrackets;
 import by.x1ss.ModsenPractice.service.CalculatorService;
-import by.x1ss.ModsenPractice.service.utils.Money;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +13,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static by.x1ss.ModsenPractice.service.utils.Utils.parseToBigDecimal;
 import static by.x1ss.ModsenPractice.service.utils.Utils.roundCurrency;
+import static by.x1ss.ModsenPractice.service.utils.Utils.validateBrackets;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +22,13 @@ public class CalculatorServiceImpl implements CalculatorService {
     private final CurrencyConvertorServiceImpl currencyConvertorService;
 
     public String calculate(String expression) {
+        if(!validateBrackets(expression)){
+            throw new IncorrectNumberOfBrackets(expression);
+        }
         return roundCurrency(calculateExpression(expression.replace(" ", "")));
     }
 
     private String calculateExpression(String expression) {
-        String startExpression = expression;
         while (expression.contains("(")) {
             int start = expression.lastIndexOf("(");
             int end = expression.indexOf(")", start);
@@ -48,31 +51,9 @@ public class CalculatorServiceImpl implements CalculatorService {
                     expression = expression.replace(command + "(" + subExpression + ")", command + "(" + result + ")");
                 }
             } else {
-                result = calculateExpression(command + subExpression);
                 if (!command.equals("")) {
+                    result = currencyConvertorService.convertByCommand(command, subExpression);
                     expression = expression.substring(0, start - command.length()) + result + expression.substring(end + 1);
-                }
-            }
-        }
-
-        for (var exchangeTo : Money.values()) {
-            if (expression.startsWith(exchangeTo.convertCommand)) {
-                expression = expression.substring(exchangeTo.convertCommand.length());
-                Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
-                if (matcher.find()) {
-                    char symbol = expression.charAt(matcher.start());
-                    expression = expression.replace(String.valueOf(symbol), "");
-                    for (var base : Money.values()) {
-                        if (symbol == base.symbol) {
-                            if (exchangeTo.startBySymbol) {
-                                return exchangeTo.symbol + currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString();
-                            } else {
-                                return currencyConvertorService.convert(base.name(), exchangeTo.name(), parseToBigDecimal(expression)).toString() + exchangeTo.symbol;
-                            }
-                        }
-                    }
-                } else {
-                    throw new CurrencySymbolNotFound(expression);
                 }
             }
         }
@@ -91,10 +72,18 @@ public class CalculatorServiceImpl implements CalculatorService {
                 BigDecimal result = BigDecimal.ZERO;
                 while (matcher.find(previousOperation + 1)){
                     int currentOperation = matcher.start();
-                    result = result.add(new BigDecimal(expression.substring(previousOperation, currentOperation)));
+                    try{
+                        result = result.add(new BigDecimal(expression.substring(previousOperation, currentOperation)));
+                    } catch (NumberFormatException e){
+                        throw new IllegalOperation(e.getMessage().charAt(10));
+                    }
                     previousOperation = currentOperation;
                 }
-                result = result.add(new BigDecimal(expression.substring(previousOperation)));
+                try {
+                    result = result.add(new BigDecimal(expression.substring(previousOperation)));
+                } catch (NumberFormatException e) {
+                    throw new IllegalOperation(e.getMessage().charAt(10));
+                }
                 if(startBySymbol){
                     return symbol + result.toString();
                 } else {
@@ -103,10 +92,6 @@ public class CalculatorServiceImpl implements CalculatorService {
             } else {
                 throw new CurrencySymbolNotFound(expression);
             }
-        }
-
-        if (startExpression.equals(expression)) {
-            throw new IllegalOperation();
         }
 
         return expression;
