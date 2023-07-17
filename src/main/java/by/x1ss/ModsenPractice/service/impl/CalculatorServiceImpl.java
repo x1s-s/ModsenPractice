@@ -1,6 +1,6 @@
 package by.x1ss.ModsenPractice.service.impl;
 
-import by.x1ss.ModsenPractice.dto.Money;
+import by.x1ss.ModsenPractice.service.utils.Money;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.IncorrectNumberOfBrackets;
 import by.x1ss.ModsenPractice.service.CalculatorService;

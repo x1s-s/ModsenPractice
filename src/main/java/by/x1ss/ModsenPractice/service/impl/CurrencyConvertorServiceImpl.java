@@ -1,11 +1,10 @@
 package by.x1ss.ModsenPractice.service.impl;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
-import by.x1ss.ModsenPractice.dto.Money;
+import by.x1ss.ModsenPractice.service.utils.Money;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
 import by.x1ss.ModsenPractice.exception.IllegalCommand;
-import by.x1ss.ModsenPractice.exception.IllegalOperation;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
 import lombok.RequiredArgsConstructor;
