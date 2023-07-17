@@ -1,6 +1,6 @@
 package by.x1ss.ModsenPractice.exception;
 
-public class CurrencySymbolNotFound extends ServiceBaseException{
+public class CurrencySymbolNotFound extends ServiceBaseException {
     public CurrencySymbolNotFound(String expression) {
         super(expression);
     }

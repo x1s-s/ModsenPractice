@@ -1,12 +1,12 @@
 package by.x1ss.ModsenPractice.service.impl;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
-import by.x1ss.ModsenPractice.service.utils.Money;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
 import by.x1ss.ModsenPractice.exception.IllegalCommand;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
+import by.x1ss.ModsenPractice.service.utils.Money;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,21 +48,21 @@ public class CurrencyConvertorServiceImpl implements CurrencyConvertorService {
             char baseCurrencySymbol = amount.charAt(matcher.start());
             String baseCurrency = null;
             Money exchangeCurrency = null;
-            for (var money: Money.values()){
+            for (var money : Money.values()) {
                 if (money.symbol == baseCurrencySymbol) {
                     baseCurrency = money.name();
                 }
-                if(money.convertCommand.equals(command)){
+                if (money.convertCommand.equals(command)) {
                     exchangeCurrency = money;
                 }
             }
-            if(exchangeCurrency == null){
+            if (exchangeCurrency == null) {
                 throw new IllegalCommand(command);
             }
-            if(baseCurrency == null){
+            if (baseCurrency == null) {
                 throw new CurrencySymbolNotFound(command + '(' + amount + ')');
             }
-            if(exchangeCurrency.startBySymbol){
+            if (exchangeCurrency.startBySymbol) {
                 return exchangeCurrency.symbol + convert(baseCurrency, exchangeCurrency.name(), parseToBigDecimal(amount.replace(String.valueOf(baseCurrencySymbol), ""))).toString();
             } else {
                 return convert(baseCurrency, exchangeCurrency.name(), parseToBigDecimal(amount.replace(String.valueOf(baseCurrencySymbol), ""))).toString() + exchangeCurrency.symbol;

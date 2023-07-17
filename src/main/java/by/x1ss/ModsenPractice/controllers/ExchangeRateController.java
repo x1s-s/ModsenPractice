@@ -17,8 +17,8 @@ public class ExchangeRateController {
 
     @GetMapping("/{baseCurrency}/{exchangeCurrency}")
     @ResponseStatus(HttpStatus.OK)
-    public BigDecimal getCurrency(@PathVariable String baseCurrency, @PathVariable String exchangeCurrency){
+    public BigDecimal getCurrency(@PathVariable String baseCurrency, @PathVariable String exchangeCurrency) {
         log.info("Get exchange rate for {} to {}", baseCurrency, exchangeCurrency);
-        return currencyConvertorService.getExchangeRate(baseCurrency,exchangeCurrency);
+        return currencyConvertorService.getExchangeRate(baseCurrency, exchangeCurrency);
     }
 }

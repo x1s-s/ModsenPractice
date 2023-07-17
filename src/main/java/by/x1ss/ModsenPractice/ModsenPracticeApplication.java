@@ -10,8 +10,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableCaching
 public class ModsenPracticeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ModsenPracticeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ModsenPracticeApplication.class, args);
+    }
 
 }
