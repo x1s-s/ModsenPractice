@@ -2,19 +2,18 @@ package by.x1ss.ModsenPractice.service.impl;
 
 import by.x1ss.ModsenPractice.dto.Money;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
-import by.x1ss.ModsenPractice.exception.IllegalOperation;
 import by.x1ss.ModsenPractice.exception.IncorrectNumberOfBrackets;
 import by.x1ss.ModsenPractice.service.CalculatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static by.x1ss.ModsenPractice.service.utils.Utils.roundCurrency;
-import static by.x1ss.ModsenPractice.service.utils.Utils.validateBrackets;
+import static by.x1ss.ModsenPractice.service.utils.Utils.parseToBigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class CalculatorServiceImpl implements CalculatorService {
     private final CurrencyConvertorServiceImpl currencyConvertorService;
 
     public String calculate(String expression) {
-        if(!validateBrackets(expression)){
+        if (!validateBrackets(expression)) {
             throw new IncorrectNumberOfBrackets(expression);
         }
         return roundCurrency(calculateExpression(expression.replace(" ", "")));
@@ -58,7 +57,7 @@ public class CalculatorServiceImpl implements CalculatorService {
             }
         }
 
-        if (Pattern.compile("[-+]").matcher(Objects.requireNonNull(expression)).find(2)){
+        if (Pattern.compile("[-+]").matcher(Objects.requireNonNull(expression)).find(2)) {
             Matcher symbolMatcher = Pattern.compile("[^-+\\d.]").matcher(expression);
             if (symbolMatcher.find()) {
                 int currencySymbolIndex = symbolMatcher.start();
@@ -70,21 +69,13 @@ public class CalculatorServiceImpl implements CalculatorService {
                 Matcher matcher = Pattern.compile("[-+]").matcher(expression);
                 int previousOperation = 0;
                 BigDecimal result = BigDecimal.ZERO;
-                while (matcher.find(previousOperation + 1)){
+                while (matcher.find(previousOperation + 1)) {
                     int currentOperation = matcher.start();
-                    try{
-                        result = result.add(new BigDecimal(expression.substring(previousOperation, currentOperation)));
-                    } catch (NumberFormatException e){
-                        throw new IllegalOperation(e.getMessage().charAt(10));
-                    }
+                    result = result.add(parseToBigDecimal(expression.substring(previousOperation, currentOperation)));
                     previousOperation = currentOperation;
                 }
-                try {
-                    result = result.add(new BigDecimal(expression.substring(previousOperation)));
-                } catch (NumberFormatException e) {
-                    throw new IllegalOperation(e.getMessage().charAt(10));
-                }
-                if(startBySymbol){
+                result = result.add(parseToBigDecimal(expression.substring(previousOperation)));
+                if (startBySymbol) {
                     return symbol + result.toString();
                 } else {
                     return result.toString() + symbol;
@@ -93,7 +84,37 @@ public class CalculatorServiceImpl implements CalculatorService {
                 throw new CurrencySymbolNotFound(expression);
             }
         }
-
         return expression;
+    }
+
+    private String roundCurrency(String expression) {
+        Matcher matcher = Pattern.compile("[^-+\\d.]").matcher(expression);
+        if (matcher.find()) {
+            int currencySymbolIndex = matcher.start();
+            boolean startBySymbol = currencySymbolIndex == 0;
+            char symbol = expression.charAt(currencySymbolIndex);
+            expression = expression.replace(String.valueOf(symbol), "");
+            String value = parseToBigDecimal(expression).setScale(2, RoundingMode.HALF_UP).toString();
+            if (startBySymbol) {
+                return symbol + value;
+            } else {
+                return value + symbol;
+            }
+        } else {
+            throw new CurrencySymbolNotFound(expression);
+        }
+    }
+
+    private boolean validateBrackets(String expression) {
+        int openBrackets = 0;
+        int closeBrackets = 0;
+        for (int i = 0; i < expression.length(); i++) {
+            if (expression.charAt(i) == '(') {
+                openBrackets++;
+            } else if (expression.charAt(i) == ')') {
+                closeBrackets++;
+            }
+        }
+        return openBrackets == closeBrackets;
     }
 }
