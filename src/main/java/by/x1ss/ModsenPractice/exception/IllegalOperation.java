@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class IllegalOperation extends RuntimeException {
+public class IllegalOperation extends ServiceBaseException {
     private char operation = 0;
 
     @Override

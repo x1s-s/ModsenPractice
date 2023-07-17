@@ -1,6 +1,6 @@
 package by.x1ss.ModsenPractice.exception;
 
-public class ResponseParseException extends RuntimeException {
+public class ResponseParseException extends ServiceBaseException {
     public ResponseParseException(String message) {
         super(message);
     }
