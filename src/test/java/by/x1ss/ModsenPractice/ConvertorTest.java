@@ -1,7 +1,9 @@
 package by.x1ss.ModsenPractice;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
+import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
 import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
+import by.x1ss.ModsenPractice.exception.IllegalCommand;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +48,19 @@ public class ConvertorTest extends AbstractTest{
         assertEquals(BigDecimal.valueOf(4), currencyConvertorService.convert("EUR", "BYN", BigDecimal.ONE));
         assertEquals(new BigDecimal("1.00"), currencyConvertorService.convert("BYN", "EUR", BigDecimal.valueOf(4)));
         assertThrows(ExchangeRateNotFound.class , () -> currencyConvertorService.convert("EUR", "RUB", BigDecimal.ONE));
+    }
+
+    @Test
+    public void convertByCommandTest(){
+        assertEquals("$0.2", currencyConvertorService.convertByCommand("toDollars", "€1"));
+        assertEquals("€25", currencyConvertorService.convertByCommand("toEuros", "$5"));
+        assertEquals("$0.5", currencyConvertorService.convertByCommand("toDollars", "1р"));
+        assertEquals("6р", currencyConvertorService.convertByCommand("toRubles", "$3"));
+        assertEquals("€0.25", currencyConvertorService.convertByCommand("toEuros", "1р"));
+        assertEquals("16р", currencyConvertorService.convertByCommand("toRubles", "€4"));
+        assertThrows(IllegalCommand.class , () -> currencyConvertorService.convertByCommand("toRUB", "€1"));
+        assertThrows(CurrencySymbolNotFound.class , () -> currencyConvertorService.convertByCommand("toDollars", "1"));
+        assertThrows(CurrencySymbolNotFound.class , () -> currencyConvertorService.convertByCommand("toDollars", "1a"));
     }
 
 

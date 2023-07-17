@@ -1,6 +1,7 @@
 package by.x1ss.ModsenPractice;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
+import by.x1ss.ModsenPractice.exception.*;
 import by.x1ss.ModsenPractice.service.CalculatorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class CalculatorServiceTest extends AbstractTest{
+public class CalculatorServiceTest extends AbstractTest {
     @Autowired
     private CalculatorService calculatorService;
 
@@ -22,7 +24,7 @@ public class CalculatorServiceTest extends AbstractTest{
     private ExchangeRateGetService exchangeRateGetService;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         Mockito.when(exchangeRateGetService.getExchangeRates()).thenReturn(
                 List.of(
                         new ExchangeRateDto("USD", "BYN", BigDecimal.valueOf(2)),
@@ -36,7 +38,7 @@ public class CalculatorServiceTest extends AbstractTest{
     }
 
     @Test
-    public void calculateSimpleStartBySymbolExpressionTest(){
+    public void calculateSimpleStartBySymbolExpressionTest() {
         assertEquals("$2.00", calculatorService.calculate("$1 + $1"));
         assertEquals("$3.00", calculatorService.calculate("$1 + $1 + $1"));
         assertEquals("$1.00", calculatorService.calculate("$1 + $1 - $1"));
@@ -48,7 +50,7 @@ public class CalculatorServiceTest extends AbstractTest{
     }
 
     @Test
-    public void calculateSimpleEndBySymbolExpressionTest(){
+    public void calculateSimpleEndBySymbolExpressionTest() {
         assertEquals("2.00р", calculatorService.calculate("1р + 1р"));
         assertEquals("3.00р", calculatorService.calculate("1р + 1р + 1р"));
         assertEquals("1.00р", calculatorService.calculate("1р + 1р - 1р"));
@@ -60,7 +62,7 @@ public class CalculatorServiceTest extends AbstractTest{
     }
 
     @Test
-    public void calculationHardExpressionTest(){
+    public void calculationHardExpressionTest() {
         assertEquals("$1.00", calculatorService.calculate("toDollars(1р + 1р)"));
         assertEquals("$-1.00", calculatorService.calculate("toDollars(-1р + -1р)"));
         assertEquals("$2.00", calculatorService.calculate("toDollars(1р + 1р) + $1"));
@@ -68,5 +70,15 @@ public class CalculatorServiceTest extends AbstractTest{
         assertEquals("€11.00", calculatorService.calculate("toEuros(toDollars(1р + 1р) + $1) + €1"));
         assertEquals("$453.90", calculatorService.calculate("toDollars(737р + toRubles($85.4))"));
         assertEquals("-9900199.00р", calculatorService.calculate("toRubles(toDollars(toRubles(toEuros(100000р + 100р - 200р - 9999999р)) + 100р - 200р))"));
+    }
+
+    @Test
+    public void exceptionTest() {
+        assertThrows(IncorrectNumberOfBrackets.class, () -> calculatorService.calculate("toDollars(1р + 1р))"));
+        assertThrows(IncorrectNumberOfBrackets.class, () -> calculatorService.calculate("toDollars((1р + 1р)"));
+        assertThrows(IllegalOperation.class, () -> calculatorService.calculate("toDollars(1р * 1р)"));
+        assertThrows(ExchangeRateNotFound.class, () -> calculatorService.calculate("toDollars(toDollars(1р))"));
+        assertThrows(CurrencySymbolNotFound.class, () -> calculatorService.calculate("toDollars(1)"));
+        assertThrows(IllegalOperation.class, () -> calculatorService.calculate("$1 + 1р"));
     }
 }
