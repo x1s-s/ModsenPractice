@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 public class CalculatorController {
     private final CalculatorService calculatorService;
 
-    @PostMapping("/calculate")
+    @GetMapping("/calculate/{expression}")
     @ResponseStatus(HttpStatus.OK)
-    public String calculate(@RequestBody String expression) {
+    public String calculate(@PathVariable String expression) {
         log.info("Calculate expression: {}", expression);
         return calculatorService.calculate(expression);
     }
