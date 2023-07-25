@@ -6,8 +6,11 @@ import by.x1ss.ModsenPractice.parser.Parser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,8 +20,8 @@ public class ParserTest extends AbstractTest {
     private Parser parser;
 
     @Test
-    public void parseTest() {
-        String input = "[{\"USD_in\":\"2.9800\",\"USD_out\":\"3.0300\",\"EUR_in\":\"3.2800\",\"EUR_out\":\"3.3800\",\"RUB_in\":\"2.8000\",\"RUB_out\":\"3.4500\",\"GBP_in\":\"0.0000\",\"GBP_out\":\"0.0000\",\"CAD_in\":\"0.0000\",\"CAD_out\":\"0.0000\",\"PLN_in\":\"0.0000\",\"PLN_out\":\"0.0000\",\"SEK_in\":\"0.0000\",\"SEK_out\":\"0.0000\",\"CHF_in\":\"0.0000\",\"CHF_out\":\"0.0000\",\"USD_EUR_in\":\"0.8870\",\"USD_EUR_out\":\"1.1120\",\"USD_RUB_in\":\"87.0000\",\"USD_RUB_out\":\"0.0093\",\"RUB_EUR_in\":\"0.0083\",\"RUB_EUR_out\":\"96.0000\",\"JPY_in\":\"0.0000\",\"JPY_out\":\"0.0000\",\"CNY_in\":\"0.0000\",\"CNY_out\":\"0.0000\",\"CNY_EUR_in\":\"0.0000\",\"CNY_EUR_out\":\"0.0000\",\"CNY_USD_in\":\"0.0000\",\"CNY_USD_out\":\"0.0000\",\"CNY_RUB_in\":\"0.0000\",\"CNY_RUB_out\":\"0.0000\",\"CZK_in\":\"0.0000\",\"CZK_out\":\"0.0000\",\"NOK_in\":\"0.0000\",\"NOK_out\":\"0.0000\",\"filial_id\":\"2212\",\"sap_id\":\"50010866\",\"info_worktime\":\"Пн        |Вт        |Ср 09 00 17 00 13 00 14 00|Чт 09 00 17 00 13 00 14 00|Пт 09 00 17 00 13 00 14 00|Сб 09 00 17 00 13 00 14 00|Вс 09 00 17 00 13 00 14 00|\",\"street_type\":\"ул.\",\"street\":\"Ильича\",\"filials_text\":\"Обменный пункт 300\\/3077\",\"home_number\":\"299\",\"name\":\"Гомель\",\"name_type\":\"г.\"}]";
+    public void parseTest() throws FileNotFoundException {
+        String input = new Scanner(new File("src/test/resources/response.txt")).nextLine();
         List<ExchangeRateDto> parseList = parser.parse(input);
         List<ExchangeRateDto> correctlist = List.of(
                 new ExchangeRateDto("USD", "BYN", new BigDecimal("2.9800")),
