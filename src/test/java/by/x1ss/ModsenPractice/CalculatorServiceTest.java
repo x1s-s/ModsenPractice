@@ -53,7 +53,7 @@ public class CalculatorServiceTest extends AbstractTest {
             "$-2.00,$-1 - $1",
             "$-2.00,$-1 + $-1"
     })
-    public void calculateSimpleStartBySymbolExpressionTest(String input, String expect) {
+    public void calculateSimpleStartBySymbolExpressionTest(String expect, String input) {
         assertEquals(expect, calculatorService.calculate(input));
     }
 
