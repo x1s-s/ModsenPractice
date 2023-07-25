@@ -2,12 +2,13 @@ package by.x1ss.ModsenPractice;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
 import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
-import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
 import by.x1ss.ModsenPractice.exception.IllegalCommand;
 import by.x1ss.ModsenPractice.service.CurrencyConvertorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,30 +40,38 @@ public class ConvertorTest extends AbstractTest{
         );
     }
 
-    @Test
-    public void convertTest(){
-        assertEquals(BigDecimal.valueOf(5), currencyConvertorService.convert("USD", "EUR", BigDecimal.ONE));
-        assertEquals(BigDecimal.valueOf(1.0), currencyConvertorService.convert("EUR", "USD", BigDecimal.valueOf(5)));
-        assertEquals(BigDecimal.valueOf(2), currencyConvertorService.convert("USD", "BYN", BigDecimal.ONE));
-        assertEquals(BigDecimal.valueOf(1.5), currencyConvertorService.convert("BYN", "USD", BigDecimal.valueOf(3)));
-        assertEquals(BigDecimal.valueOf(4), currencyConvertorService.convert("EUR", "BYN", BigDecimal.ONE));
-        assertEquals(new BigDecimal("1.00"), currencyConvertorService.convert("BYN", "EUR", BigDecimal.valueOf(4)));
-        assertThrows(ExchangeRateNotFound.class , () -> currencyConvertorService.convert("EUR", "RUB", BigDecimal.ONE));
+    @ParameterizedTest
+    @CsvSource({
+            "USD, EUR, 1, 5",
+            "EUR, USD, 5, 1.0",
+            "USD, BYN, 1, 2",
+            "BYN, USD, 3, 1.5",
+            "EUR, BYN, 1, 4",
+            "BYN, EUR, 4, 1.00"
+    })
+    public void convertTest(String from, String to, BigDecimal amount, BigDecimal expect){
+        assertEquals(expect, currencyConvertorService.convert(from, to, amount));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "toDollars, €1, $0.2",
+            "toEuros, $5, €25",
+            "toDollars, 1р, $0.5",
+            "toRubles, $3, 6р",
+            "toEuros, 1р, €0.25",
+            "toRubles, €4, 16р"
+    })
+    public void convertByCommandTest(String command, String value, String expected){
+        assertEquals(expected, currencyConvertorService.convertByCommand(command, value));
     }
 
     @Test
-    public void convertByCommandTest(){
-        assertEquals("$0.2", currencyConvertorService.convertByCommand("toDollars", "€1"));
-        assertEquals("€25", currencyConvertorService.convertByCommand("toEuros", "$5"));
-        assertEquals("$0.5", currencyConvertorService.convertByCommand("toDollars", "1р"));
-        assertEquals("6р", currencyConvertorService.convertByCommand("toRubles", "$3"));
-        assertEquals("€0.25", currencyConvertorService.convertByCommand("toEuros", "1р"));
-        assertEquals("16р", currencyConvertorService.convertByCommand("toRubles", "€4"));
+    public void convertByCommandExceptionTest(){
         assertThrows(IllegalCommand.class , () -> currencyConvertorService.convertByCommand("toRUB", "€1"));
         assertThrows(CurrencySymbolNotFound.class , () -> currencyConvertorService.convertByCommand("toDollars", "1"));
         assertThrows(CurrencySymbolNotFound.class , () -> currencyConvertorService.convertByCommand("toDollars", "1a"));
     }
-
 
 }
 

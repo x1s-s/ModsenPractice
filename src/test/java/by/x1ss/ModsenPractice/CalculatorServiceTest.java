@@ -1,11 +1,16 @@
 package by.x1ss.ModsenPractice;
 
 import by.x1ss.ModsenPractice.dto.ExchangeRateDto;
-import by.x1ss.ModsenPractice.exception.*;
+import by.x1ss.ModsenPractice.exception.CurrencySymbolNotFound;
+import by.x1ss.ModsenPractice.exception.ExchangeRateNotFound;
+import by.x1ss.ModsenPractice.exception.IllegalOperation;
+import by.x1ss.ModsenPractice.exception.IncorrectNumberOfBrackets;
 import by.x1ss.ModsenPractice.service.CalculatorService;
 import by.x1ss.ModsenPractice.service.ExchangeRateGetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,39 +42,49 @@ public class CalculatorServiceTest extends AbstractTest {
         );
     }
 
-    @Test
-    public void calculateSimpleStartBySymbolExpressionTest() {
-        assertEquals("$2.00", calculatorService.calculate("$1 + $1"));
-        assertEquals("$3.00", calculatorService.calculate("$1 + $1 + $1"));
-        assertEquals("$1.00", calculatorService.calculate("$1 + $1 - $1"));
-        assertEquals("$2.00", calculatorService.calculate("$1 - -$1"));
-        assertEquals("$0.00", calculatorService.calculate("$1 - $1"));
-        assertEquals("$0.00", calculatorService.calculate("$-1 + $1"));
-        assertEquals("$-2.00", calculatorService.calculate("$-1 - $1"));
-        assertEquals("$-2.00", calculatorService.calculate("$-1 + $-1"));
+    @ParameterizedTest
+    @CsvSource({
+            "$2.00,$1 + $1",
+            "$3.00,$1 + $1 + $1",
+            "$1.00,$1 + $1 - $1",
+            "$2.00,$1 - -$1",
+            "$0.00,$1 - $1",
+            "$0.00,$-1 + $1",
+            "$-2.00,$-1 - $1",
+            "$-2.00,$-1 + $-1"
+    })
+    public void calculateSimpleStartBySymbolExpressionTest(String input, String expect) {
+        assertEquals(expect, calculatorService.calculate(input));
     }
 
-    @Test
-    public void calculateSimpleEndBySymbolExpressionTest() {
-        assertEquals("2.00р", calculatorService.calculate("1р + 1р"));
-        assertEquals("3.00р", calculatorService.calculate("1р + 1р + 1р"));
-        assertEquals("1.00р", calculatorService.calculate("1р + 1р - 1р"));
-        assertEquals("2.00р", calculatorService.calculate("1р - -1р"));
-        assertEquals("0.00р", calculatorService.calculate("1р - 1р"));
-        assertEquals("0.00р", calculatorService.calculate("-1р + 1р"));
-        assertEquals("-2.00р", calculatorService.calculate("-1р - 1р"));
-        assertEquals("-2.00р", calculatorService.calculate("-1р + -1р"));
+
+    @ParameterizedTest
+    @CsvSource({
+            "2.00р,1р + 1р",
+            "3.00р,1р + 1р + 1р",
+            "1.00р,1р + 1р - 1р",
+            "2.00р,1р - -1р",
+            "0.00р,1р - 1р",
+            "0.00р,-1р + 1р",
+            "-2.00р,-1р - 1р",
+            "-2.00р,-1р + -1р"
+    })
+    public void calculateSimpleEndBySymbolExpressionTest(String expect, String input) {
+        assertEquals(expect, calculatorService.calculate(input));
     }
 
-    @Test
-    public void calculationHardExpressionTest() {
-        assertEquals("$1.00", calculatorService.calculate("toDollars(1р + 1р)"));
-        assertEquals("$-1.00", calculatorService.calculate("toDollars(-1р + -1р)"));
-        assertEquals("$2.00", calculatorService.calculate("toDollars(1р + 1р) + $1"));
-        assertEquals("€10.00", calculatorService.calculate("toEuros(toDollars(1р + 1р) + $1)"));
-        assertEquals("€11.00", calculatorService.calculate("toEuros(toDollars(1р + 1р) + $1) + €1"));
-        assertEquals("$453.90", calculatorService.calculate("toDollars(737р + toRubles($85.4))"));
-        assertEquals("-9900199.00р", calculatorService.calculate("toRubles(toDollars(toRubles(toEuros(100000р + 100р - 200р - 9999999р)) + 100р - 200р))"));
+    @ParameterizedTest
+    @CsvSource({
+            "$1.00,toDollars(1р + 1р)",
+            "$-1.00,toDollars(-1р + -1р)",
+            "$2.00,toDollars(1р + 1р) + $1",
+            "€10.00,toEuros(toDollars(1р + 1р) + $1)",
+            "€11.00,toEuros(toDollars(1р + 1р) + $1) + €1",
+            "$453.90,toDollars(737р + toRubles($85.4))",
+            "-9900199.00р,toRubles(toDollars(toRubles(toEuros(100000р + 100р - 200р - 9999999р)) + 100р - 200р))"
+    })
+    public void calculationHardExpressionTest(String expect, String input){
+        assertEquals(expect, calculatorService.calculate(input));
     }
 
     @Test
